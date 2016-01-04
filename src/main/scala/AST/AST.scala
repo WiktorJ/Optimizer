@@ -103,12 +103,20 @@ case class IfInstr(cond: Node, left: Node) extends Node {
     }
 }
 
-case class IfElseInstr(cond: Node, left: Node, right: Node) extends Node {
+case class IfElseInstr(conds: List[Node], suits: List[Node]) extends Node {
     override def toStr = {
-        var str = "if " + cond.toStr + ":\n"
-        str += left.toStr.replaceAll("(?m)^", indent)
-        str += "\nelse:\n"
-        str += right.toStr.replaceAll("(?m)^", indent)
+        var str = "if " + conds(0).toStr + ":\n"
+        str += suits(0).toStr.replaceAll("(?m)^", indent)
+        for (i <- 1 to suits.length - 1) {
+            str += "\nelif " + conds(i).toStr + ":\n"
+            str += suits(i).toStr.replaceAll("(?m)^", indent)
+        }
+        if (conds.length == suits.length) {
+            str += "\nelif " + conds(conds.length-1).toStr + ":\n"
+        } else {
+            str += "\nelse:\n"
+        }
+        str += suits(suits.length-1).toStr.replaceAll("(?m)^", indent)
         str
     }
 }

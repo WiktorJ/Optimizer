@@ -38,7 +38,7 @@ compound_statement : if_stmt     # Compound_statement_1
                    | classdef    # Compound_statement_4
                    ;
 
-if_stmt : IF expression ':' suite (ELSE ':' suite)?   # IfInstr
+if_stmt : IF expression ':' suite (ELIF expression ':' suite)* (ELSE ':' suite)?   # IfInstr
         ;
 
 while_stmt : WHILE expression ':' suite
@@ -70,12 +70,14 @@ expression : TRUE                                             # Expression_1
            | INPUT '(' ')'                                    # Expression_7
            | expression '(' expr_list ')'                     # Expression_8
            | '(' expression ')'                               # Expression_9
+           | '(' expr_list ')'                                # Expression_23
            | '[' expr_list_comma ']'                          # Expression_10
            | '{' key_datum_list '}'                           # Expression_11
            | expression '[' expression ']'                    # Expression_12
            | expression '.' ID                                # Expression_13
            | op=('+'|'-') expression                          # Expression_14
            | expression op=('*'|'/'|'%') expression           # Expression_15
+           | expression '**' expression                       # Expression_24
            | expression op=('+'|'-') expression               # Expression_16
            | expression op=(IS|EQ|NEQ|LT|GT|LE|GE) expression # Expression_17
            | NOT expression                                   # Expression_18
@@ -120,6 +122,7 @@ DEF: 'def' ;
 ELSE: 'else' ;
 FALSE: 'False' ;
 IF: 'if' ;
+ELIF: 'elif' ;
 IS: 'is' ;
 INPUT: 'input' ;
 LAMBDA: 'lambda' ;
