@@ -164,6 +164,13 @@ class ConcretePythonVisitor extends AbstractPythonVisitor {
     LambdaDef(formal_args, body)
   }
 
+  // expression : expression '**' expression               # Expression_24
+  override def visitExpression_24(ctx: Expression_24Context): BinExpr = {
+    val left = ctx.expression(0).accept(this)
+    val right = ctx.expression(1).accept(this)
+    BinExpr("**", left, right)
+  }
+
 
   // compound_statement : if_stmt                          # Compound_statement_1
   override def visitCompound_statement_1(ctx: Compound_statement_1Context): Node = {

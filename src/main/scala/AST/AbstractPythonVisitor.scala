@@ -28,6 +28,7 @@ class AbstractPythonVisitor extends PythonBaseVisitor[Node] {
   override def visitExpression_20(ctx: Expression_20Context): Node = super.visitExpression_20(ctx)
   override def visitExpression_21(ctx: Expression_21Context): Node = super.visitExpression_21(ctx)
   override def visitExpression_22(ctx: Expression_22Context): Node = super.visitExpression_22(ctx)
+  override def visitExpression_24(ctx: Expression_24Context): Node = super.visitExpression_24(ctx)
 
   
   override def visitCompound_statement_1(ctx: Compound_statement_1Context): Node = super.visitCompound_statement_1(ctx)

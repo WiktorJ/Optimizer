@@ -6,7 +6,7 @@ object Priority {
                      "and"->3,
                      "is"->8, "<"->8, ">"->8, ">="->8, "<="->8, "=="->8, "!="->8,
                      "+"->9,  "-"->9,
-                     "*"->10, "/"->10, "%"->10)
+                     "*"->10, "/"->10, "%"->10, "**"->14)
 
     val unary = Map("not"->4,
                     "+"->12,  "-"->12)
@@ -107,7 +107,7 @@ case class IfElseInstr(conds: List[Node], suits: List[Node]) extends Node {
     override def toStr = {
         var str = "if " + conds(0).toStr + ":\n"
         str += suits(0).toStr.replaceAll("(?m)^", indent)
-        for (i <- 1 to suits.length - 1) {
+        for (i <- 1 to suits.length - 2) {
             str += "\nelif " + conds(i).toStr + ":\n"
             str += suits(i).toStr.replaceAll("(?m)^", indent)
         }
