@@ -75,7 +75,7 @@ expression : TRUE                                             # Expression_1
            | '{' key_datum_list '}'                           # Expression_11
            | expression '[' expression ']'                    # Expression_12
            | expression '.' ID                                # Expression_13
-           | expression '**' expression                       # Expression_24
+           | <assoc=right> expression '**'expression          # Expression_24
            | op=('+'|'-') expression                          # Expression_14
            | expression op=('*'|'/'|'%') expression           # Expression_15
            | expression op=('+'|'-') expression               # Expression_16
