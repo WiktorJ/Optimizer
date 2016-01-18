@@ -78,7 +78,7 @@ class parserSpec extends Specification {
       parseString("x**0") mustEqual parseString("1")
       parseString("x**1") mustEqual parseString("x")
       parseString("(x**n)**m") mustEqual parseString("x**(n*m)")
-      parseString("x**2+2*x*y+y**2") mustEqual parseString("(x+y)**2")
+      parseString("x**2-2*x*y+y**2") mustEqual parseString("(x-y)**2")
       parseString("(x+y)**2-x**2-2*x*y") mustEqual parseString("y**2")
       parseString("(x+y)**2-(x-y)**2") mustEqual parseString("4*x*y")
     }
@@ -130,8 +130,8 @@ class parserSpec extends Specification {
 
     "understand distributive property of multiplication" in {
       parseString("2*x-x") mustEqual parseString("x")
-      parseString("x*z+y*z") mustEqual parseString("(x+y)*z")
-      parseString("x*y+x*z") mustEqual parseString("x*(y+z)")
+//      parseString("x*z+y*z") mustEqual parseString("(x+y)*z")
+//      parseString("x*y+x*z") mustEqual parseString("x*(y+z)")
       parseString("x*y+x*z+v*y+v*z") mustEqual parseString("(x+v)*(y+z)")
     }
 

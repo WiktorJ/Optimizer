@@ -76,7 +76,11 @@ object Simplifier {
       case (IntNum(x), IntNum(y)) => IntNum(x + y)
       case (Unary("-", x), y) if x == y => IntNum(0)
       case (x, Unary("-", y)) if x == y => IntNum(0)
-      case (n1, n2) => distributiveSimplifier("+", left, right)
+      case (l @ BinExpr(o @ ("+"|"-"), BinExpr("**", n1, IntNum(x)), BinExpr("*", BinExpr("*", IntNum(y), n2), n3)), r @ BinExpr("**", n4, IntNum(z)))
+        if x == 2 && y == 2 && z == 2 &&((n1 == n2 && n3 == n4) || (n1 == n2 && n3 == n4)) =>
+          BinExpr("**", BinExpr(o, n1, n4), IntNum(2))
+
+      case (n1, n2) => simplifyDistributive("+", left, right)
     }
   }
 
@@ -84,11 +88,27 @@ object Simplifier {
     (left, right) match {
       case (x, y) if x == y => IntNum(0)
       case (BinExpr(op, n1, n2), v @ Variable(x)) if List("+", "-").contains(op) => simplify(BinExpr(op, BinExpr("-", n1, v), n2)) //Well, it's enough to pass first commutativity test...
-      case (n1, n2) => distributiveSimplifier("-", left, right)
+
+      case (l @ BinExpr("**", BinExpr(op1, n1, n2), IntNum(x)), r @ BinExpr("**", BinExpr(op2, n3, n4), IntNum(y)))
+        if x == 2 && y == 2 && n1 == n3 && n2 == n4 =>
+          if (op1 == "+" && op2 == "-") BinExpr("*", BinExpr("*", n1, IntNum(4)), n2)
+          else if (op1 == "-" && op2 == "+") Unary("-", BinExpr("*", BinExpr("*", n1, IntNum(4)), n2))
+          else BinExpr("-", l, r)
+
+      case (BinExpr("-", BinExpr("**", BinExpr("+", n1, n2), IntNum(x)), BinExpr("**", n3, IntNum(y))), BinExpr("*", BinExpr("*", IntNum(z), n4), n5))
+        if x == 2 && y == 2 && z == 2 && n1 == n3 && ((n1 == n4 && n2 == n5) || (n1 == n5 && n2 == n4)) =>
+          BinExpr("**", n2, IntNum(2))
+
+      case (BinExpr("-", BinExpr("**", BinExpr("+", n1, n2), IntNum(x)), BinExpr("**", n3, IntNum(y))), BinExpr("*", BinExpr("*", IntNum(z), n4), n5))
+        if x == 2 && y == 2 && z == 2 && n2 == n3 && ((n1 == n4 && n2 == n5) || (n1 == n5 && n2 == n4)) =>
+          BinExpr("**", n1, IntNum(2))
+
+
+      case (n1, n2) => simplifyDistributive("-", left, right)
     }
   }
 
-  def distributiveSimplifier(op: String, left: Node, right: Node): Node ={
+  def simplifyDistributive(op: String, left: Node, right: Node): Node ={
 
     (left, right) match {
       case (n1 @ BinExpr("*",IntNum(y), v1), n2)  =>
@@ -97,7 +117,7 @@ object Simplifier {
         if(var1 == var2) {
           return if (y != 1) simplify(BinExpr("*", IntNum(evalOp(op, y, 1)), var1)) else var1
         }
-        BinExpr(op, simplify(n1), simplify(n2))
+        BinExpr(op, n1, n2)
       case (l @ BinExpr("*", n1, n2), r @  BinExpr("*", n3, n4))=>
         val var1 = simplify(n1)
         val var2 = simplify(n2)
@@ -105,12 +125,14 @@ object Simplifier {
         val var4 = simplify(n4)
 
         if(var1 == var3) {
-          return BinExpr("*", var1, simplify(BinExpr(op, var2, var4)))
+          return BinExpr("*", var1, BinExpr(op, var2, var4))
         }
         if(var2 == var4) {
-          return BinExpr("*", simplify(BinExpr(op, var1, var3)), var2)
+          return BinExpr("*", BinExpr(op, var1, var3), var2)
         }
-        BinExpr(op, simplify(l), simplify(r))
+        BinExpr(op, l, r)
+      case (l @ BinExpr(o @ ("+"|"-"), n1, n2), r @  BinExpr("*", n3, n4)) =>
+        simplify(BinExpr(o, n1, simplify(BinExpr(op, n2, r))))
       case (n1, n2) => BinExpr(op, n1, n2)
     }
   }
