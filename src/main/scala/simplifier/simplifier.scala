@@ -10,8 +10,23 @@ object Simplifier {
   def simplifyNodeList(list: List[Node]): Node = {
     list match {
       case List(x) => simplify(x)
+      case y::ys => val x = y::ys
+        val l = x.foldLeft(List.empty[Node])((nodeList, node) => node match {
+        case (a @ Assignment(x1, y1)) => val newList = nodeList.filter {
+          case (Assignment(x2, y2)) if x1 == x2 => false
+          case _ => true
+        }
+          newList.::(a)
+        case n => nodeList.::(n)
+      })
+        if (l.size == 1) return l.head else NodeList(l.reverse)
       case x => NodeList(x)
     }
+  }
+
+  def simplifyMap(list: List[KeyDatum]): Node = {
+    val uniqueKeys = list.foldLeft(Map.empty[Node, KeyDatum])((map, keyDatum) => map + (keyDatum.key -> keyDatum))
+    KeyDatumList(uniqueKeys.values.toList)
   }
 
   def simplifyAssignment(x: Node, y: Node): Node = {
@@ -61,14 +76,50 @@ object Simplifier {
       case (IntNum(x), IntNum(y)) => IntNum(x + y)
       case (Unary("-", x), y) if x == y => IntNum(0)
       case (x, Unary("-", y)) if x == y => IntNum(0)
-      case (n1, n2) => BinExpr("+", n1, n2)
+      case (n1, n2) => distributiveSimplifier("+", left, right)
     }
   }
 
   def simplifySubtraction(left: Node, right: Node): Node = {
     (left, right) match {
       case (x, y) if x == y => IntNum(0)
-      case (n1, n2) => BinExpr("-", n1, n2)
+      case (BinExpr(op, n1, n2), v @ Variable(x)) if List("+", "-").contains(op) => simplify(BinExpr(op, BinExpr("-", n1, v), n2)) //Well, it's enough to pass first commutativity test...
+      case (n1, n2) => distributiveSimplifier("-", left, right)
+    }
+  }
+
+  def distributiveSimplifier(op: String, left: Node, right: Node): Node ={
+
+    (left, right) match {
+      case (n1 @ BinExpr("*",IntNum(y), v1), n2)  =>
+        val var1 = simplify(v1)
+        val var2 = simplify(n2)
+        if(var1 == var2) {
+          return if (y != 1) simplify(BinExpr("*", IntNum(evalOp(op, y, 1)), var1)) else var1
+        }
+        BinExpr(op, simplify(n1), simplify(n2))
+      case (l @ BinExpr("*", n1, n2), r @  BinExpr("*", n3, n4))=>
+        val var1 = simplify(n1)
+        val var2 = simplify(n2)
+        val var3 = simplify(n3)
+        val var4 = simplify(n4)
+
+        if(var1 == var3) {
+          return BinExpr("*", var1, simplify(BinExpr(op, var2, var4)))
+        }
+        if(var2 == var4) {
+          return BinExpr("*", simplify(BinExpr(op, var1, var3)), var2)
+        }
+        BinExpr(op, simplify(l), simplify(r))
+      case (n1, n2) => BinExpr(op, n1, n2)
+    }
+  }
+
+  def evalOp(op: String, a: Integer, b:Integer): Integer = {
+    op match {
+      case "+" => a+b
+      case "-" => a-b
+      case _ => 0
     }
   }
 
@@ -121,6 +172,7 @@ object Simplifier {
       case (TrueConst(), n1) => TrueConst()
       case (FalseConst(), n1) => n1
       case (n1, FalseConst()) => n1
+      case (n1, n2) => BinExpr("or", n1, n2)
     }
   }
 
@@ -131,6 +183,8 @@ object Simplifier {
       case (n1, TrueConst()) => n1
       case (FalseConst(), n1) => FalseConst()
       case (n1, FalseConst()) => FalseConst()
+      case (n1, n2) => BinExpr("and", n1, n2)
+
     }
   }
 
@@ -164,9 +218,11 @@ object Simplifier {
     }
   }
 
+
   def simplify(node: Node): Node = {
     node match {
       case NodeList(list) => simplifyNodeList(list)
+      case KeyDatumList(list) => simplifyMap(list)
       case BinExpr("+", left, right) => simplifyAddition(simplify(left), simplify(right))
       case BinExpr("-", left, right) => simplifySubtraction(simplify(left), simplify(right))
       case BinExpr("*", left, right) => simplifyMultiplication(simplify(left), simplify(right))
