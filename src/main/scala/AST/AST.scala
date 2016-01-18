@@ -73,6 +73,16 @@ case class BinExpr(op: String, left: Node, right: Node) extends Node {
         }
         leftStr + " " + op + " " + rightStr
     }
+
+  override def equals(obj: Any): Boolean = obj match {
+    case BinExpr("+", l, r)   if ((l == right && r == left) || (r == right && l == left)) && op == "+"   => true
+    case BinExpr("*", l, r)   if ((l == right && r == left) || (r == right && l == left))  && op == "*"   => true
+    case BinExpr("and", l, r) if ((l == right && r == left) || (r == right && l == left))  && op == "and" => true
+    case BinExpr("or", l, r)  if ((l == right && r == left) || (r == right && l == left))  && op == "or"  => true
+    case BinExpr(o, l, r)     if l == left  && r == right && o  == op    => true
+    case _                                                               => false
+  }
+
 }
 
 case class IfElseExpr(cond: Node, left: Node, right: Node) extends Node {

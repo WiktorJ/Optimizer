@@ -1,7 +1,5 @@
 package simplifier
 
-import java.lang.Integer
-
 import AST._
 
 // to implement
@@ -31,7 +29,15 @@ object Simplifier {
   }
 
   def simplifyNegation(x: Node): Node = {
+    val oppositeComparison = Map(
+      "==" -> "!=",
+      "!=" -> "==",
+      ">" -> "<=",
+      "<" -> ">=",
+      "<=" -> ">",
+      ">=" -> "<")
     x match {
+      case BinExpr(op, n1, n2) if oppositeComparison.get(op).isDefined => BinExpr(oppositeComparison.get(op).get, n1, n2)
       case TrueConst() => FalseConst()
       case FalseConst() => TrueConst()
       case Unary("not", x) => x
@@ -52,7 +58,7 @@ object Simplifier {
       case (ElemList(list1), ElemList(list2)) => ElemList(list1 ::: list2)
       case (IntNum(x), y) if x == 0 => y
       case (x, IntNum(y)) if y == 0 => x
-      case (IntNum(x), IntNum(y)) => IntNum(x+y)
+      case (IntNum(x), IntNum(y)) => IntNum(x + y)
       case (Unary("-", x), y) if x == y => IntNum(0)
       case (x, Unary("-", y)) if x == y => IntNum(0)
       case (n1, n2) => BinExpr("+", n1, n2)
@@ -70,8 +76,11 @@ object Simplifier {
     (left, right) match {
       case (BinExpr("**", a1, b), BinExpr("**", a2, c)) if a1 == a2 => BinExpr("**", a1, BinExpr("+", b, c))
       case (x, IntNum(y)) if y == 1 => x
+      case (x, IntNum(y)) if y == 0 => IntNum(0)
       case (IntNum(y), x) if y == 1 => x
-      case (IntNum(x), IntNum(y)) => IntNum(x*y)
+      case (IntNum(y), x) if y == 0 => IntNum(0)
+      case (IntNum(x), IntNum(y)) => IntNum(x * y)
+      case (n1, BinExpr("/", IntNum(x), n2)) if x == 1 => BinExpr("/", n1, n2)
       case (n1, n2) => BinExpr("*", n1, n2)
     }
   }
@@ -79,7 +88,8 @@ object Simplifier {
   def simplifyDivision(left: Node, right: Node): Node = {
     (left, right) match {
       case (n1, n2) if n1 == n2 => IntNum(1) // Shall work only for n2 neq 0
-      case (n1, n2) => BinExpr("*", n1, n2)
+      case (IntNum(y), BinExpr("/", IntNum(x), n1)) if y == 1 && x == 1 => n1
+      case (n1, n2) => BinExpr("/", n1, n2)
     }
   }
 
@@ -94,12 +104,45 @@ object Simplifier {
     }
   }
 
+
+  def simplifyOtherBinary(op: String, left: Node, right: Node): Node = {
+    (left, right) match {
+      case (n1, n2) if (n1 == n2) && List("==", ">=", "<=").contains(op) => TrueConst()
+      case (n1, n2) if (n1 == n2) && List("!=", ">", "<").contains(op) => FalseConst()
+      case (n1, n2) => BinExpr(op, n1, n2)
+    }
+  }
+
+
+  def simplifyAlternative(left: Node, right: Node): Node = {
+    (left, right) match {
+      case (n1, n2) if n1 == n2 => n1
+      case (n1, TrueConst()) => TrueConst()
+      case (TrueConst(), n1) => TrueConst()
+      case (FalseConst(), n1) => n1
+      case (n1, FalseConst()) => n1
+    }
+  }
+
+  def simplifyConjunction(left: Node, right: Node): Node = {
+    (left, right) match {
+      case (n1, n2) if n1 == n2 => n1
+      case (TrueConst(), n1) => n1
+      case (n1, TrueConst()) => n1
+      case (FalseConst(), n1) => FalseConst()
+      case (n1, FalseConst()) => FalseConst()
+    }
+  }
+
+
   def simplifyIfElseInstr(conds: List[Node], suits: List[Node]): Node = {
     if (conds.head == TrueConst())
       return suits.head
     if (conds.head == FalseConst()) {
-      if (conds.size == 1) { // last condition before (possible) else suit
-        if (suits.size == 2) { //else follows
+      if (conds.size == 1) {
+        // last condition before (possible) else suit
+        if (suits.size == 2) {
+          //else follows
           return suits(1)
         } else {
           assert(suits.size == 1) // no else
@@ -129,6 +172,9 @@ object Simplifier {
       case BinExpr("*", left, right) => simplifyMultiplication(simplify(left), simplify(right))
       case BinExpr("/", left, right) => simplifyDivision(simplify(left), simplify(right))
       case BinExpr("**", left, right) => simplifyExponentiation(simplify(left), simplify(right))
+      case BinExpr("or", left, right) => simplifyAlternative(simplify(left), simplify(right))
+      case BinExpr("and", left, right) => simplifyConjunction(simplify(left), simplify(right))
+      case BinExpr(op, left, right) => simplifyOtherBinary(op, simplify(left), simplify(right))
       case Unary("not", v) => simplifyNegation(simplify(v))
       case Unary("-", v) => simplifyNegative(simplify(v))
       case Assignment(x, y) => simplifyAssignment(simplify(x), simplify(y))

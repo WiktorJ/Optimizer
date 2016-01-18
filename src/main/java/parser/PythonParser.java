@@ -1469,7 +1469,7 @@ public class PythonParser extends Parser {
 					((Expression_14Context)_localctx).op = (Token)_errHandler.recoverInline(this);
 				}
 				consume();
-				setState(170); expression(10);
+				setState(170); expression(9);
 				}
 				break;
 
@@ -1617,28 +1617,28 @@ public class PythonParser extends Parser {
 					switch ( getInterpreter().adaptivePredict(_input,17,_ctx) ) {
 					case 1:
 						{
-						_localctx = new Expression_15Context(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new Expression_24Context(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(205);
-						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
-						setState(206);
-						((Expression_15Context)_localctx).op = _input.LT(1);
-						_la = _input.LA(1);
-						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__16) | (1L << T__7) | (1L << T__4))) != 0)) ) {
-							((Expression_15Context)_localctx).op = (Token)_errHandler.recoverInline(this);
-						}
-						consume();
+						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
+						setState(206); match(T__11);
 						setState(207); expression(10);
 						}
 						break;
 
 					case 2:
 						{
-						_localctx = new Expression_24Context(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new Expression_15Context(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(208);
 						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
-						setState(209); match(T__11);
+						setState(209);
+						((Expression_15Context)_localctx).op = _input.LT(1);
+						_la = _input.LA(1);
+						if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__16) | (1L << T__7) | (1L << T__4))) != 0)) ) {
+							((Expression_15Context)_localctx).op = (Token)_errHandler.recoverInline(this);
+						}
+						consume();
 						setState(210); expression(9);
 						}
 						break;
@@ -2251,7 +2251,7 @@ public class PythonParser extends Parser {
 	}
 	private boolean expression_sempred(ExpressionContext _localctx, int predIndex) {
 		switch (predIndex) {
-		case 0: return precpred(_ctx, 9);
+		case 0: return precpred(_ctx, 10);
 
 		case 1: return precpred(_ctx, 8);
 
@@ -2335,7 +2335,7 @@ public class PythonParser extends Parser {
 		"\u00a4\u00a5\5\"\22\2\u00a5\u00a6\7\23\2\2\u00a6\u00a7\7$\2\2\u00a7\u00a9"+
 		"\3\2\2\2\u00a8\u00a2\3\2\2\2\u00a8\u00a3\3\2\2\2\u00a8\u00a4\3\2\2\2\u00a9"+
 		"!\3\2\2\2\u00aa\u00ab\b\22\1\2\u00ab\u00ac\t\2\2\2\u00ac\u00ce\5\"\22"+
-		"\f\u00ad\u00ae\7\36\2\2\u00ae\u00ce\5\"\22\7\u00af\u00b0\7\35\2\2\u00b0"+
+		"\13\u00ad\u00ae\7\36\2\2\u00ae\u00ce\5\"\22\7\u00af\u00b0\7\35\2\2\u00b0"+
 		"\u00b1\5.\30\2\u00b1\u00b2\7\4\2\2\u00b2\u00b3\5\"\22\3\u00b3\u00ce\3"+
 		"\2\2\2\u00b4\u00ce\7\"\2\2\u00b5\u00ce\7\30\2\2\u00b6\u00ce\7+\2\2\u00b7"+
 		"\u00ce\7$\2\2\u00b8\u00ce\7*\2\2\u00b9\u00ce\7)\2\2\u00ba\u00bb\7\34\2"+
@@ -2348,8 +2348,8 @@ public class PythonParser extends Parser {
 		"\2\2\u00cd\u00b4\3\2\2\2\u00cd\u00b5\3\2\2\2\u00cd\u00b6\3\2\2\2\u00cd"+
 		"\u00b7\3\2\2\2\u00cd\u00b8\3\2\2\2\u00cd\u00b9\3\2\2\2\u00cd\u00ba\3\2"+
 		"\2\2\u00cd\u00bd\3\2\2\2\u00cd\u00c1\3\2\2\2\u00cd\u00c5\3\2\2\2\u00cd"+
-		"\u00c9\3\2\2\2\u00ce\u00f6\3\2\2\2\u00cf\u00d0\f\13\2\2\u00d0\u00d1\t"+
-		"\3\2\2\u00d1\u00f5\5\"\22\f\u00d2\u00d3\f\n\2\2\u00d3\u00d4\7\b\2\2\u00d4"+
+		"\u00c9\3\2\2\2\u00ce\u00f6\3\2\2\2\u00cf\u00d0\f\f\2\2\u00d0\u00d1\7\b"+
+		"\2\2\u00d1\u00f5\5\"\22\f\u00d2\u00d3\f\n\2\2\u00d3\u00d4\t\3\2\2\u00d4"+
 		"\u00f5\5\"\22\13\u00d5\u00d6\f\t\2\2\u00d6\u00d7\t\2\2\2\u00d7\u00f5\5"+
 		"\"\22\n\u00d8\u00d9\f\b\2\2\u00d9\u00da\t\4\2\2\u00da\u00f5\5\"\22\t\u00db"+
 		"\u00dc\f\6\2\2\u00dc\u00dd\7\24\2\2\u00dd\u00f5\5\"\22\7\u00de\u00df\f"+
